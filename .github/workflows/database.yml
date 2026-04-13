@@ -1,0 +1,35 @@
+name: Database Pipeline
+
+on:
+  push:
+    paths:
+      - 'helm/templates/database/**'
+      - 'helm/templates/configmap.yaml'
+      - 'helm/templates/secret.yaml'
+      - 'helm/values.yaml'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Deploy database with Helm
+        run: |
+          helm upgrade --install major-assignment ./helm \
+            --namespace default \
+            --wait

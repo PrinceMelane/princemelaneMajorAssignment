@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+data:
+  MONGO_HOST: {{ .Values.configmap.mongoHost }}
+  MONGO_PORT: {{ .Values.configmap.mongoPORT }}
+  MONGO_DB: {{ .Values.configmap.mongoDB }}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: monogodb-pv
+spec:
+  capacity:
+    storage: {{ .Values.database.storage }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/mongodb

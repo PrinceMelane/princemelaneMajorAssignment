@@ -1,0 +1,27 @@
+backend:
+  image:
+    repository: ghcr.io/princemelane/major-assignment-backend
+    tag: latest
+    pullPolicy: Always
+  port: 8081
+  replicas: 1
+
+
+database:
+  image:
+    repository: mongo
+    tag: 6.0
+    port: 27017
+    replicas: 1
+    storage: 1Gi
+
+
+configmap:
+  mongoHost: mongodb-service
+  mongoPort: "27017"
+  mongoDB: itemsdb
+
+
+secret: 
+  mongoUsername: admin
+  mongoPassword: password123

@@ -1,0 +1,138 @@
+---
+- name: Install Docker Engine
+  hosts: vm
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Install required system packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - virtualenv
+        state: latest
+        update_cache: true
+
+    - name: Download Docker GPG key (ASCII)
+      raw: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /tmp/docker.gpg
+
+    - name: Convert key to binary format
+      raw: gpg --dearmor --yes -o /usr/share/keyrings/docker-archive-keyring.gpg /tmp/docker.gpg
+
+    - name: Get OS release
+      command: lsb_release -cs
+      register: ubuntu_release
+
+    - name: Add Docker repo
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ubuntu_release.stdout }} stable"
+        state: present
+
+    - name: Update apt and install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose
+        state: latest
+        update_cache: true
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+
+- name: Register Github Actions as Self-Hosted Runner
+  hosts: vm
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Create dedicated runner user
+      user:
+        name: "{{ runner_user }}"
+        groups: docker
+        append: yes
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Create runner directory
+      file:
+        path: "{{ runner_dir }}"
+        state: directory
+        owner: "{{ runner_user }}"
+        group: "{{ runner_user }}"
+        mode: "0755"
+
+    - name: Get latest runner version
+      raw: curl -fsSL https://api.github.com/repos/actions/runner/releases/latest | grep -oP '"tag_name":\s*"v\K[^"]+'
+      register: runner_release
+
+    - name: Set runner version fact
+      set_fact:
+        runner_version: "{{ runner_release.stdout | trim }}"
+
+    - name: Check if runner archive already exists
+      stat:
+        path: /tmp/actions-runner.tar.gz
+      register: runner_archive
+
+    - name: Download GitHub Actions runner
+      raw: curl -fsSL -o /tmp/actions-runner.tar.gz "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+      when: not runner_archive.stat.exists
+
+    - name: Check if runner is already extracted
+      stat:
+        path: "{{ runner_dir }}/config.sh"
+      register: runner_extracted
+
+    - name: Extract runner archive
+      unarchive:
+        src: "/tmp/actions-runner.tar.gz"
+        dest: "{{ runner_dir }}"
+        remote_src: yes
+        owner: "{{ runner_user }}"
+        group: "{{ runner_user }}"
+      when: not runner_extracted.stat.exists
+
+    - name: Check if runner is already configured
+      stat:
+        path: "{{ runner_dir }}/.runner"
+      register: runner_configured
+
+    - name: Configure the runner
+      raw: >
+        sudo -u {{ runner_user }} bash -c '
+        cd {{ runner_dir }} &&
+        ./config.sh
+        --url https://github.com/{{ gh_owner }}/{{ gh_repo }}
+        --token {{ gh_runner_token }}
+        --name "{{ inventory_hostname }}"
+        --labels docker,linux,x64
+        --unattended
+        --replace'
+      when: not runner_configured.stat.exists
+
+    - name: Check if runner service is already installed
+      stat:
+        path: "/etc/systemd/system/actions.runner.{{ gh_owner }}-{{ gh_repo }}.{{ inventory_hostname }}.service"
+      register: runner_service
+
+    - name: Install runner as a systemd service
+      command:
+        cmd: ./svc.sh install {{ runner_user }}
+        chdir: "{{ runner_dir }}"
+      when: not runner_service.stat.exists
+
+    - name: Start and enable runner service
+      systemd:
+        name: "actions.runner.{{ gh_owner }}-{{ gh_repo }}.{{ inventory_hostname }}.service"
+        state: started
+        enabled: yes
+        daemon_reload: yes

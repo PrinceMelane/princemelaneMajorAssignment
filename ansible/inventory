@@ -1,0 +1,9 @@
+[vm]
+135.235.195.90 ansible_user=major-assignment-user ansible_password=Major-Assignment-Pa55 ansible_python_interpreter=/usr/bin/python3
+
+[vm:vars]
+gh_owner=PrinceMelane
+gh_repo=princemelaneMajorAssignment
+gh_runner_token=B537QY5KDWNJ5XHKYJIWVUDJ3TDGG
+runner_user=github-runner
+runner_dir=/opt/actions-runner

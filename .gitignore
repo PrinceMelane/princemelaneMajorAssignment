@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Ansible
+*.retry
+
+# Helm
+charts/
+*.tgz
+
+# OS
+.DS_Store

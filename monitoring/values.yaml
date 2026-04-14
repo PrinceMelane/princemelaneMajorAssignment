@@ -1,0 +1,33 @@
+kube-prometheus-stack:
+
+  grafana:
+    service:
+      type: LoadBalancer
+    adminPassword: "admin123"
+
+  prometheus:
+    prometheusSpec:
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: default
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 5Gi
+
+      resources:
+        requests:
+          memory: 512Mi
+          cpu: 200m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+
+  alertmanager:
+    alertmanagerSpec:
+      resources:
+        requests:
+          memory: 200Mi
+        limits:
+          memory: 300Mi

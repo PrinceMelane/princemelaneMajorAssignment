@@ -4,5 +4,5 @@ metadata:
   name: mongo-config
 data:
   MONGO_HOST: {{ .Values.configmap.mongoHost }}
-  MONGO_PORT: {{ .Values.configmap.mongoPORT }}
+  MONGO_PORT: {{ .Values.configmap.mongoPort | quote }}
   MONGO_DB: {{ .Values.configmap.mongoDB }}

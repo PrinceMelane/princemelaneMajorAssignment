@@ -5,6 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: managed-csi
   resources:
     requests:
       storage: {{ .Values.database.storage | quote }}

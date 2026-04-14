@@ -4,7 +4,7 @@ metadata:
   name: mongodb-pvc
 spec:
   accessModes:
-    ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.database.storage }}
+      storage: {{ .Values.database.storage | quote }}

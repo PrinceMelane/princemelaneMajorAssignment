@@ -7,6 +7,6 @@ spec:
     app: mongodb
   ports:
     - protocol: TCP
-      port: {{ .Values.database.port }}
-      targetPort: {{ .Values.database.port }}
+      port: {{ .Values.database.port | int }}
+      targetPort: {{ .Values.database.port | int }}
   clusterIP: None

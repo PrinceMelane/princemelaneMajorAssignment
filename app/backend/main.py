@@ -67,3 +67,4 @@ async def create_item(item: Item):
         "name": new_item["name"],
         "created_at": new_item["created_at"]
     }# trigger
+# trigger

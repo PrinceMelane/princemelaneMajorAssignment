@@ -36,4 +36,3 @@ jobs:
         run: |
           helm upgrade --install major-assignment ./helm \
             --namespace default \
-            --wait

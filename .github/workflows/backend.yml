@@ -64,4 +64,3 @@ jobs:
             --set backend.image.tag=${{ github.sha }} \
             --set backend.image.repository=ghcr.io/princemelane/major-assignment-backend \
             --namespace default \
-            --wait

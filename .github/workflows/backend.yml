@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -58,6 +58,6 @@ jobs:
         run: |
           helm upgrade --install major-assignment ./helm \
             --set backend.image.tag=${{ github.sha }} \
-            --set backend.image.repository=ghcr.io/princemеlane/major-assignment-backend \
+            --set backend.image.repository=ghcr.io/princemelane/major-assignment-backend \
             --namespace default \
             --wait

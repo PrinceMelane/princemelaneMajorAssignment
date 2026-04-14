@@ -66,4 +66,4 @@ async def create_item(item: Item):
         "id": str(result.inserted_id),
         "name": new_item["name"],
         "created_at": new_item["created_at"]
-    }
+    }# trigger

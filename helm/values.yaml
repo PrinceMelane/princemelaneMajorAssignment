@@ -11,9 +11,9 @@ database:
   image:
     repository: mongo
     tag: 6.0
-    port: 27017
-    replicas: 1
-    storage: 1Gi
+  port: 27017
+  replicas: 1
+  storage: 1Gi
 
 
 configmap:

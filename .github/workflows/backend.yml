@@ -52,7 +52,11 @@ jobs:
 
       - name: Install Helm
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          curl -fsSL https://get.helm.sh/helm-v3.20.2-linux-amd64.tar.gz -o helm.tar.gz
+          tar -zxvf helm.tar.gz
+          mkdir -p ~/.local/bin
+          mv linux-amd64/helm ~/.local/bin/helm
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Deploy backend with Helm
         run: |
